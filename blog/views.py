@@ -44,11 +44,6 @@ def serialize_tag(tag):
 
 
 def index(request):
-    # posts = Post.objects.annotate(count_likes=Count('likes', distinct=True), count_comments=Count('comments', distinct=True))
-    #
-    # popular_posts = posts.prefetch_related('author', 'tags')
-    # most_popular_posts = popular_posts.order_by('-count_likes')[:5]
-
     posts = Post.objects.annotate(likes_count=Count('likes'))
 
     most_popular_posts_query = posts.order_by('-likes_count')
@@ -58,7 +53,6 @@ def index(request):
     most_fresh_posts_query = posts.order_by('published_at')
     most_fresh_posts = list(most_fresh_posts_query.prefetch_related('author', 'tags'))[-5:]
     most_fresh_posts_with_comments_count = add_commens_count_for_posts(most_fresh_posts)
-
 
     popular_tags = Tag.objects.annotate(count_posts=Count('posts')).order_by('-count_posts')
     most_popular_tags = popular_tags[:5]
@@ -137,9 +131,6 @@ def contacts(request):
     # и для записи фидбека
     return render(request, 'contacts.html', {})
 
-
-# def get_likes_count(post):
-#     return post.likes__count
 
 def add_commens_count_for_posts(posts):
     posts_ids = [post.id for post in posts]
