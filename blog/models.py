@@ -14,6 +14,10 @@ class PostQuerySet(models.QuerySet):
         popular_posts = Post.objects.annotate(likes_count=Count('likes')).order_by('-likes_count')
         return popular_posts
 
+    def fresh(selfs):
+        fresh_posts = Post.objects.order_by('-published_at')
+        return fresh_posts
+
     def fetch_with_comments_count(self):
         posts = self
         posts_ids = [post.id for post in posts]
