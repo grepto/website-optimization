@@ -24,16 +24,17 @@ def serialize_post_optimized(post):
 def serialize_tag_optimized(tag):
     return {
         'title': tag.title,
-        'posts_with_tag': Tag.objects.filter(id=tag.id).posts_count()
+        'posts_with_tag': tag.posts_count
     }
 
 
 def index(request):
-    most_popular_posts = Post.objects.popular().prefetch_related('author', 'tags')[:5].fetch_with_comments_count()
 
-    most_fresh_posts = Post.objects.fresh().prefetch_related('author', 'tags')[:5].fetch_with_comments_count()
+    most_popular_posts = Post.objects.popular().fetch_with_tags().prefetch_related('author')[:5].fetch_with_comments_count()
 
-    most_popular_tags = Tag.objects.popular()[:5]
+    most_fresh_posts = Post.objects.fresh().fetch_with_tags().prefetch_related('author')[:5].fetch_with_comments_count()
+
+    most_popular_tags = Tag.objects.popular().posts_count()[:5]
 
     context = {
         'most_popular_posts': [serialize_post_optimized(post) for post in most_popular_posts],
@@ -54,7 +55,7 @@ def post_detail(request, slug):
             'author': comment.author.username,
         })
 
-    related_tags = post.tags.all()
+    related_tags = post.tags.all().posts_count()
 
     serialized_post = {
         "title": post.title,
@@ -70,7 +71,7 @@ def post_detail(request, slug):
 
     most_popular_tags = Tag.objects.popular()[:5]
 
-    most_popular_posts = Post.objects.popular().prefetch_related('author', 'tags')[:5].fetch_with_comments_count()
+    most_popular_posts = Post.objects.popular().fetch_with_tags().prefetch_related('author')[:5].fetch_with_comments_count()
 
     context = {
         'post': serialized_post,
@@ -83,11 +84,11 @@ def post_detail(request, slug):
 def tag_filter(request, tag_title):
     tag = Tag.objects.get(title=tag_title)
 
-    most_popular_tags = Tag.objects.popular()[:5]
+    most_popular_tags = Tag.objects.popular().posts_count()[:5]
 
-    most_popular_posts = Post.objects.popular().prefetch_related('author', 'tags')[:5].fetch_with_comments_count()
+    most_popular_posts = Post.objects.popular().fetch_with_tags().prefetch_related('author')[:5].fetch_with_comments_count()
 
-    related_posts = tag.posts.all().prefetch_related('author')[:20].fetch_with_comments_count()
+    related_posts = tag.posts.all().fetch_with_tags().prefetch_related('author')[:20].fetch_with_comments_count()
 
     context = {
         "tag": tag,
