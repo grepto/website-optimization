@@ -63,6 +63,18 @@ class TagQuerySet(models.QuerySet):
         popular_tags = Tag.objects.annotate(count_posts=Count('posts')).order_by('-count_posts')
         return popular_tags
 
+    def fetch_with_posts_count(self):
+        tags = self
+        tags_ids = [tag.id for tag in tags]
+        tags_with_posts = Tag.objects.filter(id__in=tags_ids).annotate(posts_count=Count('posts'))
+        ids_and_posts = tags_with_posts.values_list('id', 'posts_count')
+        count_for_id = dict(ids_and_posts)
+
+        for tag in tags:
+            tag.posts_count = count_for_id[tag.id]
+
+        return tags
+
 
 class Tag(models.Model):
     title = models.CharField("Тег", max_length=20, unique=True)
