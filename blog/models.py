@@ -3,6 +3,13 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 
 
+class PostQuerySet(models.QuerySet):
+
+    def year(self, year):
+        posts_at_year = self.filter(published_at__year=year).order_by('published_at')
+        return posts_at_year
+
+
 class Post(models.Model):
     title = models.CharField("Заголовок", max_length=200)
     text = models.TextField("Текст")
@@ -10,9 +17,12 @@ class Post(models.Model):
     image = models.ImageField("Картинка")
     published_at = models.DateTimeField("Дата и время публикации")
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор", limit_choices_to={'is_staff': True})
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор",
+                               limit_choices_to={'is_staff': True})
     likes = models.ManyToManyField(User, related_name="liked_posts", verbose_name="Кто лайкнул", blank=True)
     tags = models.ManyToManyField("Tag", related_name="posts", verbose_name="Теги")
+
+    object = PostQuerySet.as_manager()
 
     def __str__(self):
         return self.title
@@ -45,7 +55,8 @@ class Tag(models.Model):
 
 
 class Comment(models.Model):
-    post = models.ForeignKey("Post", related_name="comments", on_delete=models.CASCADE, verbose_name="Пост, к которому написан")
+    post = models.ForeignKey("Post", related_name="comments", on_delete=models.CASCADE,
+                             verbose_name="Пост, к которому написан")
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
 
     text = models.TextField("Текст комментария")
