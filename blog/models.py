@@ -28,7 +28,7 @@ class PostQuerySet(models.QuerySet):
         for post in posts:
             post.comments_count = count_for_id[post.id]
 
-        return posts
+        return list(posts)
 
     def fetch_with_tags(self):
         tags_prefech = Prefetch('tags', queryset=Tag.objects.all().annotate(posts_count=Count('posts')))
