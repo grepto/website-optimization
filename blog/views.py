@@ -3,6 +3,11 @@ from blog.models import Comment, Post, Tag
 
 
 def serialize_post(post):
+    """Сериализует объект post  для выдачи в контекст шаблонизатора.
+
+    Перед использованием этой функции, объету post, с помощью .annotate(),
+    нужно добавить атрибут comments_count.
+    """
     return {
         "title": post.title,
         "text": post.text[:200],
@@ -17,6 +22,11 @@ def serialize_post(post):
 
 
 def serialize_tag(tag):
+    """Сериализует объект tag  для выдачи в контекст шаблонизатора.
+
+    Перед использованием этой функции, объету tag, с помощью .annotate(),
+    нужно добавить атрибут posts_count.
+    """
     return {
         'title': tag.title,
         'posts_with_tag': tag.posts_count
