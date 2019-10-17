@@ -11,11 +11,11 @@ class PostQuerySet(models.QuerySet):
         return posts_at_year
 
     def popular(self):
-        popular_posts = Post.objects.annotate(likes_count=Count('likes')).order_by('-likes_count')
+        popular_posts = self.annotate(likes_count=Count('likes')).order_by('-likes_count')
         return popular_posts
 
-    def fresh(selfs):
-        fresh_posts = Post.objects.order_by('-published_at')
+    def fresh(self):
+        fresh_posts = self.order_by('-published_at')
         return fresh_posts
 
     def fetch_with_comments_count(self):
@@ -65,7 +65,7 @@ class Post(models.Model):
 class TagQuerySet(models.QuerySet):
 
     def popular(self):
-        popular_tags = Tag.objects.annotate(posts_count=Count('posts')).order_by('-posts_count')
+        popular_tags = self.annotate(posts_count=Count('posts')).order_by('-posts_count')
         return popular_tags
 
     def posts_count(self):
